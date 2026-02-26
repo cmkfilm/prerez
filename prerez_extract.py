@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-prerez_extract.py — Feature extractor for PreRez (v1.0)
+PreRez.py — Source Resolution Classifier for AI Upscaling (v1.0)
 
 Determines the native resolution of video clips delivered in upscaled
 containers, for use as a pre-processing step before AI upscalers such
@@ -45,7 +45,7 @@ import numpy as np
 
 # Optional MPS acceleration — falls back to CPU if unavailable
 try:
-    from prerez_mps import build_ssim_engine as _build_ssim_engine
+    from ssim_mps import build_ssim_engine as _build_ssim_engine
     _SSIM_MPS_AVAILABLE = True
 except ImportError:
     _SSIM_MPS_AVAILABLE = False
@@ -665,6 +665,11 @@ examples:
                     choices=["auto", "mps", "cpu"],
                     help="SSIM compute device. auto=use MPS if available "
                          "(default: auto)")
+    ap.add_argument("--project", type=str, default=None,
+                    help="Project name prefix for ground truth keys "
+                         "(e.g. 'marylin'). If omitted, uses source "
+                         "folder name. Written as <project>/filename "
+                         "in the file column for multi-project GT.")
     ap.add_argument("--version", "-V", action="store_true")
     args = ap.parse_args()
 
@@ -699,6 +704,8 @@ examples:
         else:
             print(f"Source resolution: {res_top}p (auto-detected)")
 
+    project_prefix = (args.project or in_dir.name).replace("/", "_")
+
     tiers = build_tiers(res_top, args.res_bottom)
     if len(tiers) < 2:
         print("ERROR: Need at least 2 tiers")
@@ -720,7 +727,7 @@ examples:
         device_label = _main_engine.device_str
     else:
         _main_engine = None
-        device_label = "cpu (prerez_mps.py not found)"
+        device_label = "cpu (ssim_mps.py not found)"
 
     print(f"Found {len(files)} clips.")
     print(f"  Resolution tiers: {tier_str}")
@@ -848,8 +855,9 @@ examples:
             lv_vals     = "\t".join(f"{lv.get(t, float('nan')):.4f}"
                                     for t in [1080, 720, 480, 360, 240])
             split_str   = "SPLIT" if is_split else ""
+            file_key = f"{project_prefix}/{p.name}"
             tsv_file.write(
-                f"{p.name}\t{ssim_vals}\t{casc_vals}\t{atc_vals}\t"
+                f"{file_key}\t{ssim_vals}\t{casc_vals}\t{atc_vals}\t"
                 f"{atc720_vals}\t{lv_vals}\t"
                 f"{native}\t{target}\t{bkt}\t{split_str}\n")
 

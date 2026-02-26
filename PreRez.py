@@ -6,14 +6,22 @@ Runs:
   1. Feature extraction  (prerez_extract.py)
   2. ML classification   (prerez_classify.py)
   3. Symlink bin generation
+
+Model behaviour (in priority order):
+  --model <path>   use a specific .joblib file
+  auto-detect      uses prerez_model.joblib alongside this script
+  --retrain        ignore bundled model, retrain from --gt,
+                   save updated model back to prerez_model.joblib
+
 Usage:
   python3 prerez.py /path/to/clips
-  python3 prerez.py /path/to/clips --project my_project
+  python3 prerez.py /path/to/clips --project marylin
   python3 prerez.py /path/to/clips --grain-floor 720
+  python3 prerez.py /path/to/clips --retrain --gt ~/ground_truth.tsv
   python3 prerez.py /path/to/clips --skip-extraction
 
 Outputs (all in --out-dir, default: ~/classify_outputs/<project>):
-  <project>_features.tsv       raw per-clip features
+  <project>_features.tsv       raw per-clip SSIM features
   <project>_preds.tsv          predictions + confidence scores
   <project>_bins/              symlink folders (240/ 360/ 480/ 720/ 1080/)
   <project>_review_1080.csv    low-confidence 1080 calls for manual review
@@ -191,6 +199,12 @@ def main():
     ap.add_argument("--no-mask-lower-third", dest="mask_lower_third",
                     action="store_false")
     ap.add_argument("--res-bottom", type=int, default=240)
+    ap.add_argument("--retrain", action="store_true",
+                    help="Ignore bundled model and retrain from --gt. "
+                         "Saves updated model back to prerez_model.joblib.")
+    ap.add_argument("--model", type=str, default=None,
+                    help="Path to a specific .joblib model file to use. "
+                         "Overrides bundled model auto-detection.")
     ap.add_argument("--review-n", type=int,
                     default=DEFAULTS["review_n"],
                     help="Number of low-confidence 1080s to flag for review")
@@ -225,19 +239,19 @@ def main():
     review_csv   = out_dir / f"{project_safe}_review_1080.csv"
     log_path     = out_dir / f"{project_safe}_run.log"
 
-    extractor   = find_script("prerez_extract.py")
-    classifier  = find_script("prerez_classify.py")
+    extractor   = find_script("clip_roundtrip_classify_v6_3.py")
+    classifier  = find_script("make_safe_predictions.py")
 
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     with open(log_path, "w") as log_fh:
-        log_fh.write(f"prerez.py  —  {ts}\n")
+        log_fh.write(f"classify_project.py  —  {ts}\n")
         log_fh.write(f"Project:   {project}\n")
         log_fh.write(f"Clips dir: {clips_dir}\n")
         log_fh.write(f"Output:    {out_dir}\n\n")
 
         print(f"\n{'═'*60}")
-        print(f"  prerez  —  {project}")
+        print(f"  classify_project  —  {project}")
         print(f"  {ts}")
         print(f"{'═'*60}")
         print(f"  Clips:      {clips_dir}")
@@ -264,7 +278,8 @@ def main():
             cmd = [
                 sys.executable, str(extractor),
                 str(clips_dir),
-                "--tsv", str(features_tsv),
+                "--project", project_safe,
+            "--tsv", str(features_tsv),
                 "--res-bottom", str(args.res_bottom),
                 "--workers", str(args.workers),
             ]
@@ -280,6 +295,9 @@ def main():
             print(f"\n  ✓ Extraction complete ({elapsed:.0f}s)")
 
         # ── Step 2: Classification ─────────────────────────────────────
+        script_dir   = Path(classifier).parent
+        bundled_model = script_dir / "prerez_model.joblib"
+
         cmd = [
             sys.executable, str(classifier),
             "--tsv", str(features_tsv),
@@ -289,6 +307,14 @@ def main():
             "--cost-under", str(args.cost_under),
             "--p1080-thr",  str(args.p1080_thr),
         ]
+        # Model source: explicit --model > bundled auto-detect > retrain
+        if args.model:
+            cmd += ["--load-model", args.model]
+        if args.retrain:
+            cmd += ["--no-bundled-model",
+                    "--save-model", str(bundled_model)]
+        elif not args.model and not bundled_model.exists():
+            log_fh.write("No bundled model found — training from GT.\n")
         if args.grain_floor:
             cmd += ["--grain-floor",     str(args.grain_floor),
                     "--grain-floor-thr", str(args.grain_floor_thr)]
