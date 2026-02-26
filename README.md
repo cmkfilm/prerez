@@ -1,9 +1,8 @@
-<<<<<<< HEAD
 # PreRez
 
 **Source Resolution Classifier for AI Video Upscaling**
 
-AI upscalers like Topaz Video AI assume every pixel in the input frame is intentional. Feed a 240p image stretched to a 1080p container and Topaz treats the compression blur as genuine detail — the result is an over-processed, artificial-looking output. PreRez solves this by automatically determining the *native* resolution of each clip before it reaches the upscaler.
+AI upscalers like Topaz Video AI assume every pixel in the input frame is intentional. Feed a 240p image stretched to a high-resolution container and Topaz treats the compression blur as genuine detail — the result is an over-processed, artificial-looking output. PreRez solves this by automatically determining the *native* resolution of each clip before it reaches the upscaler.
 
 ---
 
@@ -17,7 +16,7 @@ Mixed-media documentary and archival footage is routinely delivered as 1080p con
 - 16mm or Super 8 scans at genuinely low resolution
 - Digitised photographs and printed materials
 
-Running all of these through the same Topaz pipeline produces inconsistent results. The right approach is to downscale each clip to its native resolution *before* upscaling — but doing this manually for hundreds of clips is impractical.
+Running all of these through the same Topaz pipeline produces inconsistent results. The right approach is to downscale each clip to its native resolution *before* upscaling — but identifying native resolution manually across hundreds of clips is impractical.
 
 ---
 
@@ -26,6 +25,8 @@ Running all of these through the same Topaz pipeline produces inconsistent resul
 PreRez uses a **round-trip degradation** approach: each clip is downscaled to a candidate resolution and immediately upscaled back to 1080p. The similarity between the roundtrip result and the original (measured with SSIM) reveals the native resolution — if the content was originally 360p, the 360p roundtrip looks nearly identical to the original because there was no real information to lose.
 
 The key challenge is **film grain**. High-resolution scans of analogue originals have grain deposited at scanner resolution regardless of underlying image detail. PreRez uses a **cascade architecture** — each resolution boundary is measured within the ceiling of the tier above — which causes grain to cancel itself out of the measurement.
+
+Container resolution is auto-detected — PreRez works equally on 1080p, 4K, or any other delivery format and constructs the appropriate tier comparison set automatically.
 
 Features are fed to a machine learning classifier (HistGradientBoostingClassifier) trained on a manually-labeled ground truth dataset of 1,469 clips. An **expected-cost decision framework** strongly penalises overcalling (routing low-resolution content to a high-resolution pipeline) relative to undercalling.
 
@@ -161,7 +162,7 @@ Conservative by design. The expected-cost framework penalises overcalling at 5×
 
 **Halftone prints** (newsprint, illustrated posters, printed photographs) exhibit non-monotonic behaviour in Topaz: 1080p preserves the dot pattern faithfully; 240p removes it and enhances the underlying image; 480p produces the worst result (neither preserves nor removes). Route halftone content to 1080p (default) or 240p depending on the desired aesthetic. A `--halftone-mode` flag is planned.
 
-**SD sources in HD containers** are the main labeling failure mode. Always verify source provenance rather than relying on container resolution.
+**SD sources in HD containers** are exactly the problem PreRez is designed to detect. Detection accuracy is highest when the ground truth training data is labeled by source provenance rather than container resolution — see the Ground Truth Format section.
 
 ---
 
@@ -229,8 +230,4 @@ Free for non-commercial use under the
 This covers personal projects, research, education, film students,
 archivists, and non-commercial documentary work. If you want to use
 PreRez in a commercial product or production pipeline, get in touch:
-conor@cmkfilm.com
-=======
-# prerez
-Source Resolution Classifier for AI Upscaling
->>>>>>> 56b4ed1dc020ee2b303b572d79d41167714b3637
+[your email]
