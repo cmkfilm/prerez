@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # PreRez
 
 **Source Resolution Classifier for AI Video Upscaling**
@@ -229,3 +230,7 @@ This covers personal projects, research, education, film students,
 archivists, and non-commercial documentary work. If you want to use
 PreRez in a commercial product or production pipeline, get in touch:
 conor@cmkfilm.com
+=======
+# prerez
+Source Resolution Classifier for AI Upscaling
+>>>>>>> 56b4ed1dc020ee2b303b572d79d41167714b3637
