@@ -240,7 +240,7 @@ def main():
     log_path     = out_dir / f"{project_safe}_run.log"
 
     extractor   = find_script("clip_roundtrip_classify_v6_3.py")
-    classifier  = find_script("make_safe_predictions.py")
+    classifier  = find_script("prerez_classify.py")
 
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 

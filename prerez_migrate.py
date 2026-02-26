@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-migrate_ground_truth.py — Add project prefix to existing ground_truth.tsv rows
+prerez_migrate.py — Add project prefix to existing ground_truth.tsv rows
 
 Run this ONCE when upgrading to multi-project ground truth support.
 Backs up the original file before modifying.
 
 Usage:
     # Dry run — see what will change
-    python3 migrate_ground_truth.py --project wwwars --dry-run
+    python3 prerez_migrate.py --project wwwars --dry-run
 
     # Apply
-    python3 migrate_ground_truth.py --project wwwars
+    python3 prerez_migrate.py --project wwwars
 
     # Custom GT path
-    python3 migrate_ground_truth.py --project wwwars --gt ~/ground_truth.tsv
+    python3 prerez_migrate.py --project wwwars --gt ~/ground_truth.tsv
 
 Before:
     file            native_res
