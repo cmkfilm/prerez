@@ -346,7 +346,7 @@ def main():
 
     # Remind about classifier threshold fix
     print(f"""
-NOTE: Also update MERGE_SHORT_FRAMES in clip_roundtrip_classify_v6_4.py:
+NOTE: Also update MERGE_SHORT_FRAMES in prerez_extract.py:
   Old: MERGE_SHORT_FRAMES = 10  (skips clips < 334ms — too aggressive)
   New: MERGE_SHORT_FRAMES = 3   (matches Topaz 100ms minimum)
   This recovers ~162 processable clips that were being silently dropped.

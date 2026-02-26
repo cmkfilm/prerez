@@ -1,8 +1,8 @@
 """
-ssim_mps.py — Apple MPS-accelerated variance-weighted tile SSIM
+prerez_mps.py — Apple MPS-accelerated variance-weighted tile SSIM
 
 Drop-in replacement for the cv2-based SSIM functions in
-clip_roundtrip_classify_v6_3.py. Falls back to CPU (numpy/cv2) if MPS
+prerez_extract.py. Falls back to CPU (numpy/cv2) if MPS
 is unavailable.
 
 Key optimisation: the 11×11 Gaussian blur at the heart of SSIM is a
@@ -16,7 +16,7 @@ Additional gain: multiple tier roundtrips per frame are batched as
 separate channels in a single GPU pass, amortising kernel launch overhead.
 
 Usage:
-    from ssim_mps import build_ssim_engine
+    from prerez_mps import build_ssim_engine
     ssim_engine = build_ssim_engine(device="mps")   # or "cpu"
 
     # Drop-in for variance_weighted_ssim():
@@ -119,7 +119,7 @@ class SSIMEngine:
                 self._kx, self._ky = self._make_kernels()
                 self.device_str = "mps"
             except Exception as e:
-                print(f"[ssim_mps] MPS unavailable ({e}), falling back to CPU")
+                print(f"[prerez_mps] MPS unavailable ({e}), falling back to CPU")
                 self.device_str = "cpu"
         else:
             self.device_str = "cpu"
@@ -310,7 +310,7 @@ def build_ssim_engine(device: str = "auto") -> SSIMEngine:
             device = "mps" if torch.backends.mps.is_available() else "cpu"
         except ImportError:
             device = "cpu"
-    print(f"[ssim_mps] Using device: {device}")
+    print(f"[prerez_mps] Using device: {device}")
     return SSIMEngine(device=device)
 
 

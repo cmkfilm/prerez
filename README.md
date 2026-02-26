@@ -53,7 +53,7 @@ DaVinci Resolve (Scene Cut Detect)
            ↓
   merged.fcpxml → Resolve → export individual clips
            ↓
-  classify_project.py          ← classify and bin clips by native resolution
+  prerez.py          ← classify and bin clips by native resolution
            ↓
   bins/240/  bins/360/  bins/480/  bins/720/  bins/1080/
            ↓
@@ -62,7 +62,7 @@ DaVinci Resolve (Scene Cut Detect)
   Resolve assembly
 ```
 
-**DaVinci Resolve is not required** — the FCPXML pre-processor is optional. If you already have individual clips, start at `classify_project.py`.
+**DaVinci Resolve is not required** — the FCPXML pre-processor is optional. If you already have individual clips, start at `prerez.py`.
 
 ---
 
@@ -87,7 +87,7 @@ PreRez automatically uses the MPS (Metal Performance Shaders) GPU backend on App
 ### Classify a folder of clips
 
 ```bash
-python3 classify_project.py "/path/to/clips" --grain-floor 720
+python3 prerez.py "/path/to/clips" --grain-floor 720
 ```
 
 Output lands in `~/classify_outputs/<project>/`:
@@ -133,7 +133,7 @@ For archival analogue content, use `--grain-floor 720`. This prevents clips wher
 Feature extraction takes minutes (parallelised across CPU cores). Classification takes seconds. Use `--skip-extraction` to experiment with different thresholds without waiting for re-extraction:
 
 ```bash
-python3 classify_project.py "/path/to/clips" \
+python3 prerez.py "/path/to/clips" \
   --skip-extraction \
   --p1080-thr 0.65 \
   --grain-floor 720
@@ -186,11 +186,11 @@ These are documented here because they are the obvious first approaches — and 
 
 | File | Role |
 |---|---|
-| `classify_project.py` | Single-command entry point — runs full pipeline |
-| `PreRez.py` | Feature extractor — computes per-clip SSIM features |
-| `make_safe_predictions.py` | ML classifier — trains model, outputs predictions |
+| `prerez.py` | Entry point — run this to classify a project |
+| `prerez_extract.py` | Feature extractor — computes per-clip SSIM features |
+| `prerez_classify.py` | ML classifier — trains model, outputs predictions |
 | `fcpxml_merge_shorts.py` | FCPXML pre-processor — merges short clips before Resolve export |
-| `ssim_mps.py` | Apple MPS acceleration module (auto-loaded if present) |
+| `prerez_mps.py` | Apple MPS acceleration module (auto-loaded if present) |
 | `ground_truth_example.tsv` | Sample labeled data showing expected format |
 
 ---

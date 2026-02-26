@@ -9,7 +9,7 @@
 **Goal:** Validate that the classifier generalises before investing in
 new features.
 
-Run `classify_project.py` on My Marilyn clips once exported from Resolve.
+Run `prerez.py` on My Marilyn clips once exported from Resolve.
 Spot-check bins visually — particularly the 1080 bin and any split-clip
 detections. Compare distribution to W-W-Wars as a sanity check.
 
@@ -30,11 +30,11 @@ upscale_classify/
 ├── ROADMAP.md
 ├── requirements.txt
 ├── setup.py / pyproject.toml
-├── classify_project.py              ← single-command entry point
+├── prerez.py              ← single-command entry point
 ├── fcpxml_merge_shorts.py           ← FCPXML pre-processor
-├── clip_roundtrip_classify_v6_4.py  ← feature extractor
-├── make_safe_predictions.py         ← ML classifier
-├── ssim_mps.py                      ← Apple MPS acceleration
+├── prerez_extract.py  ← feature extractor
+├── prerez_classify.py         ← ML classifier
+├── prerez_mps.py                      ← Apple MPS acceleration
 └── ground_truth_example.tsv        ← sanitised sample (scrub filenames)
 ```
 
@@ -62,7 +62,7 @@ upscale_classify/
 
 These two features complete the core workflow. Implement together as v6.5.
 
-### --transcode flag in classify_project.py
+### --transcode flag in prerez.py
 
 Replaces symlink bins with actual FFmpeg transcodes.
 Naming convention: `<original_name>_<seq>_<tier>p.mov` e.g. `name_0001_360.mov`
