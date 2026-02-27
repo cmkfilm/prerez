@@ -45,7 +45,7 @@ import numpy as np
 
 # Optional MPS acceleration — falls back to CPU if unavailable
 try:
-    from ssim_mps import build_ssim_engine as _build_ssim_engine
+    from prerez_mps import build_ssim_engine as _build_ssim_engine
     _SSIM_MPS_AVAILABLE = True
 except ImportError:
     _SSIM_MPS_AVAILABLE = False
@@ -727,7 +727,7 @@ examples:
         device_label = _main_engine.device_str
     else:
         _main_engine = None
-        device_label = "cpu (ssim_mps.py not found)"
+        device_label = "cpu (prerez_mps.py not found)"
 
     print(f"Found {len(files)} clips.")
     print(f"  Resolution tiers: {tier_str}")
