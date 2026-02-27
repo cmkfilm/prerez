@@ -1,12 +1,12 @@
 {
   "feature_set_version": "1.0",
-  "trained_at": "2026-02-27T00:23:03.861854+00:00",
-  "labeled_clips": 1580,
+  "trained_at": "2026-02-27T00:32:03.773397+00:00",
+  "labeled_clips": 1578,
   "projects": [
     "wwwars"
   ],
-  "within_1": 0.8031645569620253,
-  "overcall": 0.10822784810126582,
-  "1080_recall": 0.3933333333333333,
+  "within_1": 0.8003802281368821,
+  "overcall": 0.11406844106463879,
+  "1080_recall": 0.31756756756756754,
   "prerez_version": "1.0"
 }
