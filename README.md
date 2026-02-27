@@ -111,6 +111,8 @@ python3 fcpxml_merge_shorts.py MyProject_SCD.fcpxml --report
 
 Import the resulting `_merged.fcpxml` into Resolve and re-export. Clips that cannot be merged (isolated single frames) are flagged in the report as pass-throughs.
 
+> **Resolve import note:** DaVinci's scene cut detection preserves source timecode offsets, which can render as visual gaps when the merged FCPXML is reimported. This is cosmetic — the XML contains no missing content. Workaround: place the full uncut source on V1, import the merged FCPXML on V2. V2 clips define the export segments; V1 fills any gaps from pass-through clips.
+
 ---
 
 ## Key Parameters
