@@ -1,22 +1,46 @@
 # PreRez
 
-**Source Resolution Classifier for AI Video Upscaling**
+**Source Resolution Classifier for Pre-Upscaling Decisions**
 
-AI upscalers like Topaz Video AI assume every pixel in the input frame is intentional. Feed a 240p image stretched to a high-resolution container and Topaz treats the compression blur as genuine detail — the result is an over-processed, artificial-looking output. PreRez solves this by automatically determining the *native* resolution of each clip before it reaches the upscaler.
+Video and film archives routinely deliver footage at frame dimensions that don't 
+reflect the native resolution of the source material. A 1080p stream might contain 
+genuine HD, a stretched DVD transfer, or a 16mm scan with optical detail equivalent 
+to 480p. Resolution-dependent processing — upscaling, sharpening, restoration — 
+needs to know the difference, but frame dimensions alone won't tell you, and checking 
+manually across hundreds of clips isn't practical.
+
+PreRez classifies the native source resolution of each clip automatically, so 
+processing decisions can be made per-clip based on what's actually in the frame.
+
+**Built for:** Post-production and archival workflows involving mixed-source footage — 
+documentary, restoration, library migration, or any pipeline where source provenance 
+is uncertain and processing quality depends on getting resolution right before 
+upscaling, not after.
 
 ---
 
-## The Problem
+## Development Approach
 
-Mixed-media documentary and archival footage is routinely delivered as 1080p containers regardless of original source resolution. A single timeline might contain:
+PreRez was developed through LLM-assisted coding (Claude and ChatGPT). The problem 
+identification, solution concept, design decisions, domain logic, evaluation strategy, 
+and debugging were driven by the developer; the AI handled implementation. The project 
+reflects a working method where the human originates the idea and directs the build 
+while the tools supply code they can't quality-check on their own.
 
-- Genuine HD footage from a Blu-ray source
-- High-resolution film scans (1080p container, but native content is 35mm grain at 720p-equivalent detail)  
-- SD video captures (DVD, broadcast) stretched to fill 1080p
-- 16mm or Super 8 scans at genuinely low resolution
-- Digitised photographs and printed materials
+Several aspects of the project involved the kind of thinking that doesn't come from 
+the model: the round-trip degradation method was arrived at after ruling out 
+approaches (spectral analysis, resampling detection) that fail on heavily transcoded 
+archival material. The cascade architecture — where each resolution boundary is 
+measured within the ceiling of the tier above — was designed specifically to neutralize 
+film grain in the SSIM signal, a problem unique to analogue-origin content. The 
+expected-cost decision framework, which penalizes overcalling at 5× the weight of 
+undercalling, encodes a practical judgment about which errors matter more in real 
+upscaling pipelines.
 
-Running all of these through the same Topaz pipeline produces inconsistent results. The right approach is to downscale each clip to its native resolution *before* upscaling — but identifying native resolution manually across hundreds of clips is impractical.
+The ground truth dataset (1,469 manually labeled clips from a mixed-media documentary) 
+and the evaluation methodology were built from scratch — there's no existing benchmark 
+for this problem. The repo includes a training library that can be expanded by other 
+users as they label their own projects, improving the classifier over time.
 
 ---
 
