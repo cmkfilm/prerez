@@ -256,4 +256,4 @@ Free for non-commercial use under the
 This covers personal projects, research, education, film students,
 archivists, and non-commercial documentary work. If you want to use
 PreRez in a commercial product or production pipeline, get in touch:
-[your email]
+conor@cmkfilm.com
