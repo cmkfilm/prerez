@@ -19,31 +19,6 @@ upscaling, not after.
 
 ---
 
-## Development Approach
-
-PreRez was developed through LLM-assisted coding (Claude and ChatGPT). The problem 
-identification, solution concept, design decisions, domain logic, evaluation strategy, 
-and debugging were driven by the developer; the AI handled implementation. The project 
-reflects a working method where the human originates the idea and directs the build 
-while the tools supply code they can't quality-check on their own.
-
-Several aspects of the project involved the kind of thinking that doesn't come from 
-the model: the round-trip degradation method was arrived at after ruling out 
-approaches (spectral analysis, resampling detection) that fail on heavily transcoded 
-archival material. The cascade architecture — where each resolution boundary is 
-measured within the ceiling of the tier above — was designed specifically to neutralize 
-film grain in the SSIM signal, a problem unique to analogue-origin content. The 
-expected-cost decision framework, which penalizes overcalling at 5× the weight of 
-undercalling, encodes a practical judgment about which errors matter more in real 
-upscaling pipelines.
-
-The ground truth dataset (1,469 manually labeled clips from a mixed-media documentary) 
-and the evaluation methodology were built from scratch — there's no existing benchmark 
-for this problem. The repo includes a training library that can be expanded by other 
-users as they label their own projects, improving the classifier over time.
-
----
-
 ## How It Works
 
 PreRez uses a **round-trip degradation** approach: each clip is downscaled to a candidate resolution and immediately upscaled back to 1080p. The similarity between the roundtrip result and the original (measured with SSIM) reveals the native resolution — if the content was originally 360p, the 360p roundtrip looks nearly identical to the original because there was no real information to lose.
@@ -189,6 +164,31 @@ Conservative by design. The expected-cost framework penalises overcalling at 5×
 **Halftone prints** (newsprint, illustrated posters, printed photographs) exhibit non-monotonic behaviour in Topaz: 1080p preserves the dot pattern faithfully; 240p removes it and enhances the underlying image; 480p produces the worst result (neither preserves nor removes). Route halftone content to 1080p (default) or 240p depending on the desired aesthetic. A `--halftone-mode` flag is planned.
 
 **SD sources in HD containers** are exactly the problem PreRez is designed to detect. Detection accuracy is highest when the ground truth training data is labeled by source provenance rather than container resolution — see the Ground Truth Format section.
+
+---
+
+## Development Approach
+
+PreRez was developed through LLM-assisted coding (Claude and ChatGPT). The problem 
+identification, solution concept, design decisions, domain logic, evaluation strategy, 
+and debugging were driven by the developer; the AI handled implementation. The project 
+reflects a working method where the human originates the idea and directs the build 
+while the tools supply code they can't quality-check on their own.
+
+Several aspects of the project involved the kind of thinking that doesn't come from 
+the model: the round-trip degradation method was arrived at after ruling out 
+approaches (spectral analysis, resampling detection) that fail on heavily transcoded 
+archival material. The cascade architecture — where each resolution boundary is 
+measured within the ceiling of the tier above — was designed specifically to neutralize 
+film grain in the SSIM signal, a problem unique to analogue-origin content. The 
+expected-cost decision framework, which penalizes overcalling at 5× the weight of 
+undercalling, encodes a practical judgment about which errors matter more in real 
+upscaling pipelines.
+
+The ground truth dataset (1,469 manually labeled clips from a mixed-media documentary) 
+and the evaluation methodology were built from scratch — there's no existing benchmark 
+for this problem. The repo includes a training library that can be expanded by other 
+users as they label their own projects, improving the classifier over time.
 
 ---
 
